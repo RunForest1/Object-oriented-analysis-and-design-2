@@ -42,9 +42,16 @@ namespace WindowsFormsApp1
             SoftwareContract clone = (SoftwareContract)manager.CreateContract();
 
             // Заполняем клон уникальными данными из формы
+
+        if (!string.IsNullOrWhiteSpace(inputNameSoftware.Text))
             clone.NameSoftware = inputNameSoftware.Text;
+
+        if (!string.IsNullOrWhiteSpace(inputSourceCode.Text))
             clone.SourceCode = inputSourceCode.Text;
+
+        if (!string.IsNullOrWhiteSpace(inputTermsOfReference.Text))
             clone.TermsOfReference = inputTermsOfReference.Text;
+
 
             // Отображаем результат
             listContract.Items.Add(clone.GetInfo());
@@ -60,9 +67,17 @@ namespace WindowsFormsApp1
             LicenseContract clone = (LicenseContract)manager.CreateContract();
 
             // Заполняем клон уникальными данными из формы
+        if (!string.IsNullOrWhiteSpace(inputLicenseType.Text))
             clone.LicenseType = inputLicenseType.Text;
+
+        // Проверяем, изменил ли пользователь значение (если 0, то оставляем дефолтное из прототипа)
+        if (inputDuration.Value > 0)
             clone.Duration = (int)inputDuration.Value;
+
+        if (!string.IsNullOrWhiteSpace(inputTerrtory.Text))
             clone.Territory = inputTerrtory.Text;
+
+        if (inputRoyality.Value > 0)
             clone.RoyaltyRate = (decimal)inputRoyality.Value;
 
             // Отображаем результат
@@ -79,9 +94,16 @@ namespace WindowsFormsApp1
             EmploymentContract clone = (EmploymentContract)manager.CreateContract();
 
             // Заполняем клон уникальными данными из формы
+        if (!string.IsNullOrWhiteSpace(inputPosition.Text))
             clone.Position = inputPosition.Text;
+
+        if (inputSalary.Value > 0)
             clone.Salary = (decimal)inputSalary.Value;
+
+        if (!string.IsNullOrWhiteSpace(inputDepartment.Text))
             clone.Department = inputDepartment.Text;
+
+        if (inputProbationPeriod.Value > 0)
             clone.ProbationPeriod = (int)inputProbationPeriod.Value;
 
             // Отображаем результат
