@@ -16,7 +16,6 @@
 
 ![alt text](image.png)
 
-
 ---
 
 ## Вывод

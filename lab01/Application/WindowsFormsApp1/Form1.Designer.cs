@@ -34,6 +34,11 @@
             this.label1 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.Software = new System.Windows.Forms.TabPage();
+            this.btnAddReq = new System.Windows.Forms.Button();
+            this.btnDelReq = new System.Windows.Forms.Button();
+            this.inputNewReq = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.listReq = new System.Windows.Forms.ListBox();
             this.btnSoftware = new System.Windows.Forms.Button();
             this.inputTermsOfReference = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -81,7 +86,7 @@
             this.panel1.Controls.Add(this.label1);
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(860, 42);
+            this.panel1.Size = new System.Drawing.Size(1153, 42);
             this.panel1.TabIndex = 0;
             // 
             // label2
@@ -90,7 +95,7 @@
             this.label2.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.label2.Font = new System.Drawing.Font("Noto Sans", 12F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(786, 9);
+            this.label2.Location = new System.Drawing.Point(1088, 9);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(62, 24);
             this.label2.TabIndex = 1;
@@ -122,6 +127,11 @@
             // 
             // Software
             // 
+            this.Software.Controls.Add(this.btnAddReq);
+            this.Software.Controls.Add(this.btnDelReq);
+            this.Software.Controls.Add(this.inputNewReq);
+            this.Software.Controls.Add(this.label14);
+            this.Software.Controls.Add(this.listReq);
             this.Software.Controls.Add(this.btnSoftware);
             this.Software.Controls.Add(this.inputTermsOfReference);
             this.Software.Controls.Add(this.label6);
@@ -137,6 +147,58 @@
             this.Software.TabIndex = 0;
             this.Software.Text = "Договор разработки ПО";
             this.Software.UseVisualStyleBackColor = true;
+            // 
+            // btnAddReq
+            // 
+            this.btnAddReq.BackColor = System.Drawing.SystemColors.MenuHighlight;
+            this.btnAddReq.Font = new System.Drawing.Font("Noto Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnAddReq.ForeColor = System.Drawing.Color.White;
+            this.btnAddReq.Location = new System.Drawing.Point(132, 185);
+            this.btnAddReq.Name = "btnAddReq";
+            this.btnAddReq.Size = new System.Drawing.Size(91, 36);
+            this.btnAddReq.TabIndex = 11;
+            this.btnAddReq.Text = "Добавить";
+            this.btnAddReq.UseVisualStyleBackColor = false;
+            this.btnAddReq.Click += new System.EventHandler(this.btnAddReq_Click);
+            // 
+            // btnDelReq
+            // 
+            this.btnDelReq.BackColor = System.Drawing.SystemColors.MenuHighlight;
+            this.btnDelReq.Font = new System.Drawing.Font("Noto Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnDelReq.ForeColor = System.Drawing.Color.White;
+            this.btnDelReq.Location = new System.Drawing.Point(229, 185);
+            this.btnDelReq.Name = "btnDelReq";
+            this.btnDelReq.Size = new System.Drawing.Size(91, 36);
+            this.btnDelReq.TabIndex = 10;
+            this.btnDelReq.Text = "Удалить";
+            this.btnDelReq.UseVisualStyleBackColor = false;
+            this.btnDelReq.Click += new System.EventHandler(this.btnDelReq_Click);
+            // 
+            // inputNewReq
+            // 
+            this.inputNewReq.Location = new System.Drawing.Point(196, 154);
+            this.inputNewReq.Name = "inputNewReq";
+            this.inputNewReq.Size = new System.Drawing.Size(124, 25);
+            this.inputNewReq.TabIndex = 9;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("Noto Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label14.Location = new System.Drawing.Point(8, 154);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(161, 24);
+            this.label14.TabIndex = 8;
+            this.label14.Text = "Новое требование:";
+            // 
+            // listReq
+            // 
+            this.listReq.FormattingEnabled = true;
+            this.listReq.ItemHeight = 20;
+            this.listReq.Location = new System.Drawing.Point(355, 14);
+            this.listReq.Name = "listReq";
+            this.listReq.Size = new System.Drawing.Size(165, 164);
+            this.listReq.TabIndex = 7;
             // 
             // btnSoftware
             // 
@@ -470,16 +532,17 @@
             this.listContract.HideSelection = false;
             this.listContract.Location = new System.Drawing.Point(554, 78);
             this.listContract.Name = "listContract";
-            this.listContract.Size = new System.Drawing.Size(306, 371);
+            this.listContract.Size = new System.Drawing.Size(599, 367);
             this.listContract.TabIndex = 2;
             this.listContract.UseCompatibleStateImageBehavior = false;
             this.listContract.View = System.Windows.Forms.View.List;
+            this.listContract.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.listContract_ItemSelectionChanged);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Noto Sans", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label3.Location = new System.Drawing.Point(673, 48);
+            this.label3.Location = new System.Drawing.Point(820, 48);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(87, 24);
             this.label3.TabIndex = 3;
@@ -489,7 +552,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(860, 450);
+            this.ClientSize = new System.Drawing.Size(1165, 450);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.listContract);
             this.Controls.Add(this.tabControl1);
@@ -550,6 +613,11 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.TextBox inputPosition;
         private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Button btnAddReq;
+        private System.Windows.Forms.Button btnDelReq;
+        private System.Windows.Forms.TextBox inputNewReq;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.ListBox listReq;
     }
 }
 

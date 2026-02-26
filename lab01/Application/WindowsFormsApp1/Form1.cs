@@ -30,88 +30,110 @@ namespace WindowsFormsApp1
             _licensePrototype = new LicenseContract("Стандартная лицензия");
             // Шаблон для трудового договора
             _employmentPrototype = new EmploymentContract("Стандартный сотрудник");
-
         }
 
         private void btnSoftware_Click(object sender, EventArgs e)
         {
-            // Передаем готовый шаблон договора ПО
             manager.SetPrototype(_softwarePrototype);
-
-            // Клонируем его
             SoftwareContract clone = (SoftwareContract)manager.CreateContract();
 
-            // Заполняем клон уникальными данными из формы
+            if (!string.IsNullOrWhiteSpace(inputNameSoftware.Text))
+                clone.NameSoftware = inputNameSoftware.Text;
 
-        if (!string.IsNullOrWhiteSpace(inputNameSoftware.Text))
-            clone.NameSoftware = inputNameSoftware.Text;
+            if (!string.IsNullOrWhiteSpace(inputSourceCode.Text))
+                clone.SourceCode = inputSourceCode.Text;
 
-        if (!string.IsNullOrWhiteSpace(inputSourceCode.Text))
-            clone.SourceCode = inputSourceCode.Text;
+            if (!string.IsNullOrWhiteSpace(inputTermsOfReference.Text))
+                clone.TermsOfReference = inputTermsOfReference.Text;
 
-        if (!string.IsNullOrWhiteSpace(inputTermsOfReference.Text))
-            clone.TermsOfReference = inputTermsOfReference.Text;
+            if (listReq.Items.Count > 0)
+            {
+                clone.Requirements.Clear(); // Очищаем стандартные требования из шаблона
 
+                foreach (var item in listReq.Items)
+                {
+                    // Добавляем каждое требование из ListBox в объект контракта
+                    if (item != null)
+                        clone.Requirements.Add(item.ToString());
+                }
+            }
 
-            // Отображаем результат
             listContract.Items.Add(clone.GetInfo());
             MessageBox.Show("Договор разработки ПО создан!\n\n" + clone.GetInfo());
         }
 
         private void btnLicense_Click(object sender, EventArgs e)
         {
-            // Передаем готовый шаблон договора лицензии
             manager.SetPrototype(_licensePrototype);
-
-            // Клонируем его
             LicenseContract clone = (LicenseContract)manager.CreateContract();
 
-            // Заполняем клон уникальными данными из формы
-        if (!string.IsNullOrWhiteSpace(inputLicenseType.Text))
-            clone.LicenseType = inputLicenseType.Text;
+            if (!string.IsNullOrWhiteSpace(inputLicenseType.Text))
+                clone.LicenseType = inputLicenseType.Text;
 
-        // Проверяем, изменил ли пользователь значение (если 0, то оставляем дефолтное из прототипа)
-        if (inputDuration.Value > 0)
-            clone.Duration = (int)inputDuration.Value;
+            if (inputDuration.Value > 0)
+                clone.Duration = (int)inputDuration.Value;
 
-        if (!string.IsNullOrWhiteSpace(inputTerrtory.Text))
-            clone.Territory = inputTerrtory.Text;
+            if (!string.IsNullOrWhiteSpace(inputTerrtory.Text))
+                clone.Territory = inputTerrtory.Text;
 
-        if (inputRoyality.Value > 0)
-            clone.RoyaltyRate = (decimal)inputRoyality.Value;
+            if (inputRoyality.Value > 0)
+                clone.RoyaltyRate = (decimal)inputRoyality.Value;
 
-            // Отображаем результат
             listContract.Items.Add(clone.GetInfo());
             MessageBox.Show("Лицензионный договор создан!\n\n" + clone.GetInfo());
         }
 
         private void btnEployment_Click(object sender, EventArgs e)
         {
-            // Передаем готовый шаблон трудового договора
             manager.SetPrototype(_employmentPrototype);
-
-            // Клонируем его
             EmploymentContract clone = (EmploymentContract)manager.CreateContract();
 
-            // Заполняем клон уникальными данными из формы
-        if (!string.IsNullOrWhiteSpace(inputPosition.Text))
-            clone.Position = inputPosition.Text;
+            if (!string.IsNullOrWhiteSpace(inputPosition.Text))
+                clone.Position = inputPosition.Text;
 
-        if (inputSalary.Value > 0)
-            clone.Salary = (decimal)inputSalary.Value;
+            if (inputSalary.Value > 0)
+                clone.Salary = (decimal)inputSalary.Value;
 
-        if (!string.IsNullOrWhiteSpace(inputDepartment.Text))
-            clone.Department = inputDepartment.Text;
+            if (!string.IsNullOrWhiteSpace(inputDepartment.Text))
+                clone.Department = inputDepartment.Text;
 
-        if (inputProbationPeriod.Value > 0)
-            clone.ProbationPeriod = (int)inputProbationPeriod.Value;
+            if (inputProbationPeriod.Value > 0)
+                clone.ProbationPeriod = (int)inputProbationPeriod.Value;
 
-            // Отображаем результат
             listContract.Items.Add(clone.GetInfo());
             MessageBox.Show("Трудовой договор создан!\n\n" + clone.GetInfo());
         }
-    }
 
+        private void btnAddReq_Click(object sender, EventArgs e)
+        {
+            listReq.Items.Add(inputNewReq.Text);
+            inputNewReq.Clear();
+        }
+
+        private void btnDelReq_Click(object sender, EventArgs e)
+        {
+            if (listReq.SelectedIndex != -1)
+            {
+                listReq.Items.RemoveAt(listReq.SelectedIndex);
+            }
+        }
+
+        private void listContract_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            // Проверяем, что элемент именно ВЫДЕЛИЛСЯ (а не снял выделение)
+            if (e.IsSelected && e.Item != null)
+            {
+
+                string selectedText = e.Item.Text;
+                MessageBox.Show(
+                    $"Вы выбрали договор:\n\n{selectedText}",
+                    "Информация о договоре",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
+            }
+        }
+    }
 
     interface IContractPrototype
     {
@@ -125,11 +147,22 @@ namespace WindowsFormsApp1
         public string SourceCode { get; set; }
         public string TermsOfReference { get; set; }
 
+        // Список требований (ссылочный тип)
+        public List<string> Requirements { get; set; }
+
         public SoftwareContract(string projectName)
         {
             NameSoftware = projectName;
             SourceCode = "Standard Code Base";
             TermsOfReference = "Standard Terms";
+
+            // Инициализируем список требованиями по умолчанию
+            Requirements = new List<string>
+        {
+            "Анализ требований",
+            "Проектирование системы",
+            "Сдача документации"
+        };
         }
 
         private SoftwareContract(SoftwareContract source)
@@ -137,13 +170,26 @@ namespace WindowsFormsApp1
             NameSoftware = source.NameSoftware;
             SourceCode = source.SourceCode;
             TermsOfReference = source.TermsOfReference;
+
+            // cоздаем НОВЫЙ список и копируем элементы
+            if (source.Requirements != null)
+            {
+                this.Requirements = new List<string>(source.Requirements);
+            }
+            else
+            {
+                this.Requirements = new List<string>();
+            }
         }
 
         public IContractPrototype Clone() => new SoftwareContract(this);
 
-        public string GetInfo() => $"[Software] Проект: {NameSoftware} Исходный код: {SourceCode} ТЗ: {TermsOfReference}";
+        public string GetInfo()
+        {
+            string reqList = string.Join(", ", Requirements);
+            return $"[Software] Проект: {NameSoftware} | Код: {SourceCode} | ТЗ: {TermsOfReference} | Требования: {reqList}";
+        }
     }
-
     class LicenseContract : IContractPrototype
     {
         public string LicenseType { get; set; }
@@ -154,7 +200,7 @@ namespace WindowsFormsApp1
         public LicenseContract(string type)
         {
             LicenseType = type;
-            Duration = 12;                // Значение по умолчанию
+            Duration = 12;
             Territory = "Российская Федерация";
             RoyaltyRate = 0.05m;
         }
@@ -186,7 +232,7 @@ namespace WindowsFormsApp1
         public EmploymentContract(string position)
         {
             Position = position;
-            Salary = 50000m;            // Значение по умолчанию
+            Salary = 50000m;
             Department = "Общий отдел";
             ProbationPeriod = 90;
         }
