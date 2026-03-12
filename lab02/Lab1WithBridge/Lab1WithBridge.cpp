@@ -1,7 +1,4 @@
-﻿// Lab1WithBridge.cpp : Финальная реализация под итоговую UML диаграмму
-// Исправлена ошибка со скобками в обработчике сообщений
-
-#define _CRT_SECURE_NO_WARNINGS
+﻿#define _CRT_SECURE_NO_WARNINGS
 
 #include "framework.h"
 #include "Lab1WithBridge.h"
@@ -15,7 +12,7 @@
 using namespace std;
 
 // ==========================================
-// 1. БИЗНЕС-ЛОГИКА (ПАТТЕРН МОСТ)
+// ПАТТЕРН МОСТ
 // ==========================================
 
 // --- Implementor (Реализация) ---
@@ -27,7 +24,7 @@ public:
     virtual wstring GetFormatName() = 0;
 };
 
-// ConcreteImplementor: JsonExporter
+// JsonExporter
 class JsonExporter : public IExporter {
 public:
     wstring ExportText(const vector<wstring>& words) override {
@@ -55,31 +52,31 @@ public:
     wstring GetFormatName() override { return L"JSON"; }
 };
 
-// ConcreteImplementor: PDFExporter
-class PDFExporter : public IExporter {
+// TxtExporter 
+class TxtExporter : public IExporter {
 public:
     wstring ExportText(const vector<wstring>& words) override {
         wstringstream ss;
-        ss << L"%PDF-1.4\n% Text Document Simulation\n1 0 obj\n<< /Type /Catalog >>\nendobj\n";
+        ss << L"=== TEXT DOCUMENT ===\n\n";
         for (const auto& w : words) {
-            ss << L"BT /F1 12 Tf (" << w << L") Tj ET\n";
+            ss << L"• " << w << L"\n";
         }
-        ss << L"%%EOF";
+        ss << L"\n=====================";
         return ss.str();
     }
     wstring ExportImage(const vector<wstring>& paths) override {
         wstringstream ss;
-        ss << L"%PDF-1.4\n% Image Gallery Simulation\n";
+        ss << L"=== IMAGE GALLERY ===\n\n";
         for (const auto& p : paths) {
-            ss << L"<< /Type /XObject /Subtype /Image /File (" << p << L") >>\n";
+            ss << L"[IMAGE] " << p << L"\n";
         }
-        ss << L"%%EOF";
+        ss << L"\n=====================";
         return ss.str();
     }
-    wstring GetFormatName() override { return L"PDF (Simulated)"; }
+    wstring GetFormatName() override { return L"TXT"; }
 };
 
-// ConcreteImplementor: MarkdownExporter
+// MarkdownExporter
 class MarkdownExporter : public IExporter {
 public:
     wstring ExportText(const vector<wstring>& words) override {
@@ -118,7 +115,7 @@ public:
     virtual wstring Export() = 0;
 };
 
-// RefinedAbstraction: TextDocument
+// TextDocument
 class TextDocument : public Document {
 private:
     vector<wstring> words;
@@ -137,7 +134,7 @@ public:
     const vector<wstring>& GetData() const { return words; }
 };
 
-// RefinedAbstraction: ImageDocument
+// ImageDocument
 class ImageDocument : public Document {
 private:
     vector<wstring> images;
@@ -157,7 +154,7 @@ public:
 };
 
 // ==========================================
-// 2. GUI И ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
+// GUI И ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
 // ==========================================
 
 HINSTANCE hInst;
@@ -176,7 +173,7 @@ WCHAR szWindowClass[MAX_LOADSTRING];
 
 // Объекты паттерна
 shared_ptr<JsonExporter> jsonExp;
-shared_ptr<PDFExporter> pdfExp;
+shared_ptr<TxtExporter> txtExp; 
 shared_ptr<MarkdownExporter> mdExp;
 shared_ptr<IExporter> currentExporter;
 
@@ -209,7 +206,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // Инициализация объектов
     jsonExp = make_shared<JsonExporter>();
-    pdfExp = make_shared<PDFExporter>();
+    txtExp = make_shared<TxtExporter>();
     mdExp = make_shared<MarkdownExporter>();
 
     currentExporter = jsonExp;
@@ -316,7 +313,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         hComboFormat = CreateWindowW(L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
             120, 10, 150, 200, hWnd, (HMENU)IDC_COMBO_FORMAT, hInst, 0);
         SendMessageW(hComboFormat, CB_ADDSTRING, 0, (LPARAM)L"JSON");
-        SendMessageW(hComboFormat, CB_ADDSTRING, 0, (LPARAM)L"PDF");
+        SendMessageW(hComboFormat, CB_ADDSTRING, 0, (LPARAM)L"TXT");  // ИЗМЕНЕНО: было PDF
         SendMessageW(hComboFormat, CB_ADDSTRING, 0, (LPARAM)L"Markdown");
         SendMessageW(hComboFormat, CB_SETCURSEL, 0, 0);
 
@@ -371,7 +368,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (wmEvent == CBN_SELCHANGE) {
                 int idx = (int)SendMessageW(hComboFormat, CB_GETCURSEL, 0, 0);
                 if (idx == 0) currentExporter = jsonExp;
-                else if (idx == 1) currentExporter = pdfExp;
+                else if (idx == 1) currentExporter = txtExp; 
                 else if (idx == 2) currentExporter = mdExp;
 
                 textDoc->setExporter(currentExporter);
@@ -411,7 +408,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             wstring fmt = currentExporter->GetFormatName();
 
             if (fmt == L"JSON") ext = L"json";
-            else if (fmt.find(L"PDF") != wstring::npos) ext = L"pdf";
+            else if (fmt == L"TXT") ext = L"txt"; 
             else if (fmt == L"Markdown") ext = L"md";
 
             OPENFILENAMEW ofn = {};
@@ -439,9 +436,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
-        } // Конец switch(wmId) - ВАЖНО: здесь только ОДНА закрывающая скобка
+        } 
         break;
-    } // Конец case WM_COMMAND
+    }
 
     case WM_NOTIFY:
     {

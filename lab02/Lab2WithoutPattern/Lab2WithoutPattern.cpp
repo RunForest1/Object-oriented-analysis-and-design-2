@@ -1,7 +1,10 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+﻿
+
+#define _CRT_SECURE_NO_WARNINGS
+#define MAX_LOADSTRING 100
 
 #include "framework.h"
-#include "Lab2WithoutPattern.h" // Убедитесь, что имя заголовка совпадает с вашим проектом!
+#include "Lab2WithoutPattern.h" 
 #include <commctrl.h>
 #include <string>
 #include <vector>
@@ -12,7 +15,7 @@
 using namespace std;
 
 // ==========================================
-// 1. БИЗНЕС-ЛОГИКА (БЕЗ ПАТТЕРНА МОСТ)
+// БЕЗ ПАТТЕРНА МОСТ
 // ==========================================
 
 // Базовый класс
@@ -23,12 +26,12 @@ public:
     virtual wstring Export() = 0;
     virtual wstring GetFormatName() = 0;
 
-    // ДОБАВЛЕНО: Метод для получения данных, чтобы сохранять их при смене класса
+    // Метод для получения данных, чтобы сохранять их при смене класса
     virtual vector<wstring> GetData() const = 0;
 };
 
 // ==========================================
-// ГРУППА 1: ТЕКСТОВЫЕ ДОКУМЕНТЫ
+// ТЕКСТОВЫЕ ДОКУМЕНТЫ
 // ==========================================
 
 class TextJsonDocument : public DocumentBase {
@@ -43,20 +46,25 @@ public:
         ss << L"  ]\n}"; return ss.str();
     }
     wstring GetFormatName() override { return L"JSON"; }
-    vector<wstring> GetData() const override { return words; } // Реализация
+    vector<wstring> GetData() const override { return words; }
 };
 
-class TextPdfDocument : public DocumentBase {
+// TextTxtDocument
+class TextTxtDocument : public DocumentBase {
     vector<wstring> words;
 public:
     void AddElement(const wstring& data) override { if (!data.empty()) words.push_back(data); }
     wstring Export() override {
-        wstringstream ss; ss << L"%PDF-1.4\n% Text Sim\n";
-        for (const auto& w : words) ss << L"BT (" << w << L") Tj ET\n";
+        wstringstream ss;
+        ss << L"=== TEXT DOCUMENT ===\n\n";
+        for (const auto& w : words) {
+            ss << L"• " << w << L"\n";
+        }
+        ss << L"\n=====================";
         return ss.str();
     }
-    wstring GetFormatName() override { return L"PDF"; }
-    vector<wstring> GetData() const override { return words; } // Реализация
+    wstring GetFormatName() override { return L"TXT"; }
+    vector<wstring> GetData() const override { return words; }
 };
 
 class TextMarkdownDocument : public DocumentBase {
@@ -69,11 +77,11 @@ public:
         return ss.str();
     }
     wstring GetFormatName() override { return L"Markdown"; }
-    vector<wstring> GetData() const override { return words; } // Реализация
+    vector<wstring> GetData() const override { return words; }
 };
 
 // ==========================================
-// ГРУППА 2: ДОКУМЕНТЫ С КАРТИНКАМИ
+// ДОКУМЕНТЫ С КАРТИНКАМИ
 // ==========================================
 
 class ImageJsonDocument : public DocumentBase {
@@ -88,20 +96,25 @@ public:
         ss << L"  ]\n}"; return ss.str();
     }
     wstring GetFormatName() override { return L"JSON"; }
-    vector<wstring> GetData() const override { return images; } // Реализация
+    vector<wstring> GetData() const override { return images; }
 };
 
-class ImagePdfDocument : public DocumentBase {
+// ImageTxtDocument
+class ImageTxtDocument : public DocumentBase {
     vector<wstring> images;
 public:
     void AddElement(const wstring& data) override { if (!data.empty()) images.push_back(data); }
     wstring Export() override {
-        wstringstream ss; ss << L"%PDF-1.4\n% Image Sim\n";
-        for (const auto& p : images) ss << L"<< /File (" << p << L") >>\n";
+        wstringstream ss;
+        ss << L"=== IMAGE GALLERY ===\n\n";
+        for (const auto& p : images) {
+            ss << L"[IMAGE] " << p << L"\n";
+        }
+        ss << L"\n=====================";
         return ss.str();
     }
-    wstring GetFormatName() override { return L"PDF"; }
-    vector<wstring> GetData() const override { return images; } // Реализация
+    wstring GetFormatName() override { return L"TXT"; }
+    vector<wstring> GetData() const override { return images; }
 };
 
 class ImageMarkdownDocument : public DocumentBase {
@@ -114,11 +127,11 @@ public:
         return ss.str();
     }
     wstring GetFormatName() override { return L"Markdown"; }
-    vector<wstring> GetData() const override { return images; } // Реализация
+    vector<wstring> GetData() const override { return images; }
 };
 
 // ==========================================
-// 2. GUI И ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
+// GUI И ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
 // ==========================================
 
 HINSTANCE hInst;
@@ -153,9 +166,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     UNREFERENCED_PARAMETER(lpCmdLine);
 
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_LAB2WITHOUTPATTERN, szWindowClass, MAX_LOADSTRING); // Проверьте имя ресурса!
+    LoadStringW(hInstance, IDC_LAB2WITHOUTPATTERN, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
 
+    // Инициализация: создаем документ по умолчанию (Text + JSON)
     currentDoc = make_shared<TextJsonDocument>();
     currentDoc->AddElement(L"Привет! Это текст без моста.");
     currentDoc->AddElement(L"Данные теперь сохраняются.");
@@ -204,7 +218,6 @@ void UpdatePreview() {
 void RefreshList() {
     if (!hListData || !currentDoc) return;
     SendMessageW(hListData, LB_RESETCONTENT, 0, 0);
-    // Используем новый метод GetData()
     vector<wstring> data = currentDoc->GetData();
     for (const auto& item : data) {
         SendMessageW(hListData, LB_ADDSTRING, 0, (LPARAM)item.c_str());
@@ -231,7 +244,7 @@ void OpenFileBrowser() {
     }
 }
 
-// ИСПРАВЛЕННАЯ ФУНКЦИЯ: Теперь она сохраняет данные перед удалением объекта
+// Функция переключения формата с сохранением данных
 void SwitchFormat(int formatIndex) {
     if (!currentDoc) return;
 
@@ -246,12 +259,12 @@ void SwitchFormat(int formatIndex) {
     // 3. СОЗДАЕМ НОВЫЙ ОБЪЕКТ НУЖНОГО ТИПА
     if (isTextTab) {
         if (formatIndex == 0) currentDoc = make_shared<TextJsonDocument>();
-        else if (formatIndex == 1) currentDoc = make_shared<TextPdfDocument>();
+        else if (formatIndex == 1) currentDoc = make_shared<TextTxtDocument>(); 
         else if (formatIndex == 2) currentDoc = make_shared<TextMarkdownDocument>();
     }
     else {
         if (formatIndex == 0) currentDoc = make_shared<ImageJsonDocument>();
-        else if (formatIndex == 1) currentDoc = make_shared<ImagePdfDocument>();
+        else if (formatIndex == 1) currentDoc = make_shared<ImageTxtDocument>(); 
         else if (formatIndex == 2) currentDoc = make_shared<ImageMarkdownDocument>();
     }
 
@@ -271,7 +284,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         hComboFormat = CreateWindowW(L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
             120, 10, 150, 200, hWnd, (HMENU)IDC_COMBO_FORMAT, hInst, 0);
         SendMessageW(hComboFormat, CB_ADDSTRING, 0, (LPARAM)L"JSON");
-        SendMessageW(hComboFormat, CB_ADDSTRING, 0, (LPARAM)L"PDF");
+        SendMessageW(hComboFormat, CB_ADDSTRING, 0, (LPARAM)L"TXT"); // ИЗМЕНЕНО: было PDF
         SendMessageW(hComboFormat, CB_ADDSTRING, 0, (LPARAM)L"Markdown");
         SendMessageW(hComboFormat, CB_SETCURSEL, 0, 0);
 
@@ -306,7 +319,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         case IDC_COMBO_FORMAT:
             if (wmEvent == CBN_SELCHANGE) {
                 int idx = (int)SendMessageW(hComboFormat, CB_GETCURSEL, 0, 0);
-                SwitchFormat(idx); // Теперь данные не потеряются
+                SwitchFormat(idx);
             }
             break;
         case IDC_BTN_ADD: {
@@ -327,7 +340,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             wstring ext = L"txt";
             wstring fmt = currentDoc->GetFormatName();
             if (fmt == L"JSON") ext = L"json";
-            else if (fmt.find(L"PDF") != wstring::npos) ext = L"txt";
+            else if (fmt == L"TXT") ext = L"txt";
             else if (fmt == L"Markdown") ext = L"md";
 
             OPENFILENAMEW ofn = {}; wchar_t szFile[MAX_PATH] = L"";
@@ -360,8 +373,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
                 ShowWindow(hEditInput, SW_HIDE); ShowWindow(hBtnAdd, SW_HIDE); ShowWindow(hBtnBrowse, SW_SHOW);
             }
 
-            // При смене вкладки тоже вызываем SwitchFormat, чтобы создать документ правильного типа
-            // Данные сохранятся благодаря GetData()
             SwitchFormat(fmtIdx);
         }
         break;
